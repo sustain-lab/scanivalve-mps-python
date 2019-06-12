@@ -4,6 +4,8 @@ A Python interface to Scanivalve MPS4264.
 
 ## Getting started
 
+### Get the code and set up the environment
+
 ```
 git clone https://github.com/sustain-lab/scanivalve-mps-python
 scanivalve-mps-python
@@ -13,8 +15,17 @@ pip install -U pip
 pip install -r requirements.txt
 ```
 
-## Examples
+### Run tests
+
+The instrument must be connected and powered to run the tests succesfully.
 
 ```
-python bootloader_version.py
+pytest -v scanivalve_mps/tests.py
 ```
+
+## Supported functions
+
+* [x] `MPS.bootloader_version()`
+* [x] `MPS.status()`
+* [x] `MPS.get_time()`
+* [ ] `MPS.set_time()`
