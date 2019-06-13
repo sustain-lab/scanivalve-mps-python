@@ -1,26 +1,24 @@
 """
 tcp.py -- Helper functions to send and receive TCP messages.
 """
-import socket
+from socket import socket, AF_INET, SOCK_STREAM
 import time
+from typing import List
 
-BUFFER_SIZE = 4096
+BUFFER_SIZE: int = 4096
 
 
-def str_to_tcp(string):
+def tcp_decode(message: bytes) -> List:
+    """Decode TCP message to a list of strings."""
+    return message.decode().split('\r\n')[:-1]
+
+
+def tcp_encode(string: str) -> bytes:
     """Encode string to TCP message."""
     return string.encode() + b'\r\n'
 
 
-def tcp_to_str(message):
-    """Decode TCP message to string."""
-    string = message.decode().split('\r\n')
-    if string[-1] == '' or string[-1] == '>':
-        string = string[:-1]
-    return string
-
-
-def tcp_recvall(sock):
+def tcp_recvall(sock: socket) -> bytes:
     """Streams incoming data from the socket
     until the whole message is received."""
     data = b''
@@ -32,20 +30,34 @@ def tcp_recvall(sock):
     return data
 
 
-def tcp_sendrecv(sock, message):
+def tcp_recvall_until_token(sock: socket, token: str) -> bytes:
+    """Streams multiple TCP packets from the socket
+    until we reach the input token."""
+    data = b''
+    while True:
+        packet = tcp_recvall(sock)
+        if packet.decode()[-1] == token:
+            data += packet
+            break
+        else:
+            data += packet
+    return data
+
+
+def tcp_sendrecv(sock: socket, message: str):
     """Sends a TCP message to socket.
     Returns a decoded and stripped response message."""
-    sock.sendall(str_to_tcp(message))
-    data = tcp_to_str(tcp_recvall(sock))
+    sock.sendall(tcp_encode(message))
+    data = tcp_decode(tcp_recvall_until_token(sock, '>'))
     if len(data) == 1:
         data = data[0]
     return data
 
 
-def tcp_connect(host, port):
+def tcp_connect(host: str, port: int) -> socket:
     """Thin wrapper around socket.connect(). 
     Takes a host string (IP address) and port number, 
     and returns a socket instance."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock = socket(AF_INET, SOCK_STREAM)
     sock.connect((host, port))
     return sock

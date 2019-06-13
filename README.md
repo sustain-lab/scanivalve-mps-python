@@ -27,5 +27,9 @@ pytest -v scanivalve_mps/tests.py
 
 * [x] `MPS.bootloader_version()`
 * [x] `MPS.status()`
+* [x] `MPS.get_scan_start_time()`
 * [x] `MPS.get_time()`
-* [ ] `MPS.set_time()`
+* [x] `MPS.scan()`
+* [x] `MPS.set_format(format_code)`
+* [x] `MPS.set_time(time)`
+* [x] `MPS.version()`
