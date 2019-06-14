@@ -1,16 +1,28 @@
 from scanivalve_mps.tcp import tcp_connect, tcp_sendrecv
 from datetime import datetime
 
+MPS_AVAILABLE_UNITS = ['PSI', 'ATM', 'BAR', 'CMHG', 'CMH2O', 'DECIBAR', 
+    'FTH2O', 'GCM2', 'INHG', 'INH2O', 'KNM2', 'KGM2', 'KGCM2', 'KPA', 
+    'KIPIN2', 'MPA', 'MBAR', 'MH2O', 'MMHG', 'NM2', 'NCM2', 'OZIN2', 
+    'OZFT2', 'PA', 'PSF', 'TORR', 'USER', 'RAW']
+MPS_FPS_MAX = 4294967295 # 2**32 - 1
 MPS_STATUSES = ['ready', 'scan', 'cal', 'val', 'calz', 'calm']
 
+
 class MPS():
-    def __init__(self, host: str, port: int):
+    def __init__(self, host: str, port: int = 23):
         str: self.host = host
         int: self.port = port
         self.sock = tcp_connect(host, port)
 
     def bootloader_version(self) -> str:
         return tcp_sendrecv(self.sock, 'blver')
+
+    def calibrate_zero(self) -> None:
+        """Starts a zero calibration and 
+        places the MPS4000 into CALZ mode."""
+        data = tcp_sendrecv(self.sock, 'calz')
+        return
 
     def connect(self):
         self.sock = tcp_connect(self.host, self.port)
@@ -44,14 +56,37 @@ class MPS():
         return time
 
     def scan(self):
-        """Starts scanning and places the MPS4264 into SCAN mode."""
+        """Starts scanning and places the MPS4264 into SCAN mode.
+        Returns the final data as a list of strings records."""
         return tcp_sendrecv(self.sock, 'scan')
+
+    def scan_to_csv(self, filename):
+        """Starts scanning and places the MPS4264 into SCAN mode.
+        Stores the data into a CSV file."""
+        data = tcp_sendrecv(self.sock, 'scan')
+        with open(filename, 'w') as f:
+            f.write('\n'.join(data))
+        return
+
+    def set_frames_per_scan(self, fps: int):
+        """Set the number of frames in a scan."""
+        if fps < 0 or fps > MPS_FPS_MAX:
+            raise ValueError('frames per scan must be 0 <= fps <= ' + str(MPS_FPS_MAX))
+        data = tcp_sendrecv(self.sock, 'set fps ' + str(fps))
+        return
 
     def set_format(self, format_code):
         """Set the format of the scanned data."""
         if not format_code in ['ascii', 'formatted_ascii', 'csv']:
             raise ValueError('format_code must be ascii, formatted_ascii, or csv')
         data = tcp_sendrecv(self.sock, 'set format t ' + format_code[0])
+        return
+
+    def set_rate(self, rate: float):
+        """Set the scan rate in samples/channel/second (Hz)."""
+        if not 0.25 < rate < 850:
+            raise ValueError('rate must be 0.25 < rate < 850')
+        data = tcp_sendrecv(self.sock, 'set rate ' + str(rate))
         return
 
     def set_time(self, time: datetime) -> datetime:
@@ -64,6 +99,11 @@ class MPS():
         if 'ERROR' in data:
             raise ValueError(data)
         return self.get_time()
+
+    def set_scan_units(self, units: str) -> None:
+        """Sets the scan units. See MPS_AVAILABLE_UNITS for accepted values."""
+        data = tcp_sendrecv(self.sock, 'set units ' + units)
+        return
 
     def status(self):
         data = tcp_sendrecv(self.sock, 'status')
