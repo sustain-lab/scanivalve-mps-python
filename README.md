@@ -1,6 +1,6 @@
 # scanivalve-mps-python
 
-A Python interface to Scanivalve MPS4264.
+A Python interface to [Scanivalve MPS4264](http://scanivalve.com/products/pressure-measurement/miniature-ethernet-pressure-scanners/mps4264/).
 
 ## Getting started
 
@@ -72,4 +72,6 @@ mps.disconnect()
 * [x] `MPS.set_scan_units(units)`
 * [x] `MPS.set_time(time)`
 * [x] `MPS.status()`
+* [x] `MPS.stop()`
+* [x] `MPS.stream(frames)`
 * [x] `MPS.version()`
