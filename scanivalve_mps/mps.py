@@ -1,4 +1,4 @@
-from scanivalve_mps.tcp import tcp_connect, tcp_sendrecv, tcp_encode, tcp_recvall
+from scanivalve_mps.tcp import tcp_connect, tcp_sendrecv, tcp_decode, tcp_encode, tcp_recvall
 from datetime import datetime
 
 MPS_AVAILABLE_UNITS = ['PSI', 'ATM', 'BAR', 'CMHG', 'CMH2O', 'DECIBAR', 
@@ -118,12 +118,21 @@ class MPS():
         data = tcp_sendrecv(self.sock, 'stop')
         return
 
-    def stream(self, frames=50):
+    def stream(self):
+        try:
+            self._stream()
+        except KeyboardInterrupt:
+            self.stop()
+
+    def _stream(self):
         """Starts a scan and streams data to the terminal."""
         self.sock.sendall(tcp_encode('scan'))
-        for i in range(frames):
-            print(tcp_recvall(self.sock))
-        self.sock.sendall(tcp_encode('stop'))
+        while True:
+            try:
+                print(tcp_decode(tcp_recvall(self.sock)).pop())
+            except IndexError:
+                pass
+        self.stop()
 
     def version(self):
         return tcp_sendrecv(self.sock, 'ver')
