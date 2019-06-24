@@ -4,15 +4,10 @@ A Python interface to [Scanivalve MPS4264](http://scanivalve.com/products/pressu
 
 ## Getting started
 
-### Get the code and dependencies
+### Get the code
 
 ```
-git clone https://github.com/sustain-lab/scanivalve-mps-python
-scanivalve-mps-python
-python3 -m venv venv
-source venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
+pip install -U git+https://github.com/sustain-lab/scanivalve-mps-python
 ```
 
 ### Set the environment
