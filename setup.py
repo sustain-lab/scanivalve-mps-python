@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='scanivalve-mps-python',
+    name='scanivalve_mps',
     version='0.1.0',
     description='Python interface to Scanivalve MPS4264',
     author='Milan Curcic',
