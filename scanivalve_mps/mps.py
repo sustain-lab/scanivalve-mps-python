@@ -92,8 +92,9 @@ class MPS():
     def set_time(self, time: datetime) -> datetime:
         """Sets the time on the MPS to the input value.
         If no error, returns the new time from the MPS."""
-        #TODO currently only setting time up to a second precision
-        #TODO expand to set nanoseconds field as well
+        # MPS only supports setting time down to a second precision.
+        # See examples/sync_mps_clock.py for how to set the time
+        # down to ~10 ms accuracy.
         timestr = time.strftime('%Y/%m/%d %H:%M:%S')
         data = tcp_sendrecv(self.sock, 'settime ' + timestr)
         if 'ERROR' in data:
