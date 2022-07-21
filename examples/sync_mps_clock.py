@@ -4,9 +4,6 @@ from scanivalve_mps.mps import MPS
 HOST = '10.126.0.150'
 mps = MPS(HOST)
 
-if mps.status() == 'ready':
-    print('MPS is up on ' + HOST)
-
 t1 = datetime.utcnow()
 print('sync_mps_clock started at', t1)
 while True:
